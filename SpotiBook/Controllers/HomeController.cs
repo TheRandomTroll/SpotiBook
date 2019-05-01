@@ -3,15 +3,32 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SpotiBook.Data;
 using SpotiBook.Models;
 
 namespace SpotiBook.Controllers
 {
     public class HomeController : Controller
     {
+
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
+
+        public HomeController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        {
+            this.userManager = userManager;
+            this.signInManager = signInManager;
+        }
+
         public IActionResult Index()
         {
+            if(signInManager.IsSignedIn(User))
+            {
+                return LocalRedirect("/Feed");
+            }
+
             return View();
         }
 
