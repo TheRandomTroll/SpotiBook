@@ -17,6 +17,8 @@ namespace SpotiBook.Data
 
         public DbSet<Post> Posts { get; set; }
 
+        public DbSet<Comment> Comments { get; set; }
+
         public DbSet<Song> Songs { get; set; }
 
         public DbSet<FollowerRelation> FollowerRelations { get; set; }

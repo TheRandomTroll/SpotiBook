@@ -13,6 +13,8 @@ using SpotiBook.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SpotiBook.Models;
+using SpotiBook.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace SpotiBook
 {
@@ -48,6 +50,8 @@ namespace SpotiBook
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddSingleton<IEmailSender, DummyEmailSender>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }

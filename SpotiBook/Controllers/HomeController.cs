@@ -12,13 +12,10 @@ namespace SpotiBook.Controllers
 {
     public class HomeController : Controller
     {
-
-        private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
 
-        public HomeController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public HomeController(SignInManager<ApplicationUser> signInManager)
         {
-            this.userManager = userManager;
             this.signInManager = signInManager;
         }
 

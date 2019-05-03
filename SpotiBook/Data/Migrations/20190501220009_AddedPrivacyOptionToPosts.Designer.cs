@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpotiBook.Data;
 
 namespace SpotiBook.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190501220009_AddedPrivacyOptionToPosts")]
+    partial class AddedPrivacyOptionToPosts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,29 +182,6 @@ namespace SpotiBook.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("SpotiBook.Models.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AuthorId");
-
-                    b.Property<string>("Content");
-
-                    b.Property<int>("PostId");
-
-                    b.Property<DateTime>("PostedOn");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Comments");
-                });
-
             modelBuilder.Entity("SpotiBook.Models.FollowerRelation", b =>
                 {
                     b.Property<string>("FollowerId");
@@ -302,18 +281,6 @@ namespace SpotiBook.Data.Migrations
                     b.HasOne("SpotiBook.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("SpotiBook.Models.Comment", b =>
-                {
-                    b.HasOne("SpotiBook.Data.ApplicationUser", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId");
-
-                    b.HasOne("SpotiBook.Models.Post", "Post")
-                        .WithMany("Comments")
-                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

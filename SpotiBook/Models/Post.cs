@@ -1,4 +1,5 @@
 ﻿using SpotiBook.Data;
+using SpotiBook.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -19,6 +20,8 @@ namespace SpotiBook.Models
 
         public string AuthorId { get; set; }
 
+        public PostPrivacyOptions Privacy { get; set; }
+
         public virtual Song UploadedSong { get; set; }
 
         public virtual ApplicationUser Poster { get; set; }
@@ -27,5 +30,7 @@ namespace SpotiBook.Models
         public virtual ApplicationUser Author { get; set; }
 
         public DateTime PostedOn { get; set; }
+
+        public virtual ICollection<Comment> Comments { get; set; }
     }
 }
