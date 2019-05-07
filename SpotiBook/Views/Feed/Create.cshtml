@@ -1,0 +1,56 @@
+﻿@model SpotiBook.Models.ViewModels.CreatePostViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Share a new song</h2>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control">
+                </textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Source"></label>
+                <select asp-for="Source" class="form-control" id="source" onchange="updateFields(this);">
+                    <option value="0">YouTube</option>
+                    <option value="1">Upload MP3</option>
+                </select>
+                <span asp-validation-for="Source" class="text-danger"></span>
+            </div>
+            <div class="form-group" id="youtube-url">
+                <label asp-for="YouTubeURL"></label>
+                <input asp-for="YouTubeURL" class="form-control">
+                <span asp-validation-for="YouTubeURL" class="text-danger"></span>
+            </div>
+            <div class="form-group d-none" id="upload">
+                <label asp-for="UploadedSong"></label>
+                <input asp-for="UploadedSong" class="form-control-file" accept="audio/*">
+                <span asp-validation-for="UploadedSong" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateFields(val) {
+        if (val.value === "0") {
+            document.getElementById('youtube-url').classList.remove('d-none');
+            document.getElementById('upload').classList.add('d-none');
+        } else if (val.value === "1") {
+            document.getElementById('youtube-url').classList.add('d-none');
+            document.getElementById('upload').classList.remove('d-none');
+        }
+    }
+
+    document.onload = updateFields(document.getElementById('source'));
+</script>
+

@@ -21,26 +21,5 @@ namespace SpotiBook.Services
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
-
-        public List<Post> GetPosts(ApplicationUser currentUser)
-        {
-            this.context.Entry(currentUser)
-                .Collection(x => x.Posts)
-                .Load();
-
-            this.context.Entry(currentUser)
-                .Collection(x => x.Following)
-                .Load();
-
-            List<Post> posts = currentUser.Posts
-                .ToList();
-
-            foreach(FollowerRelation relation in currentUser.Following)
-            {
-                posts.AddRange(relation.Following.Posts);
-            }
-
-            return posts.OrderByDescending(x => x.PostedOn).ToList();
-        }
     }
 }

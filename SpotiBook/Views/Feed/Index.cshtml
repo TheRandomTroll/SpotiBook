@@ -1,7 +1,66 @@
 ﻿@model IEnumerable<SpotiBook.Models.Post>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Your feed";
+
+    string YouTubeUrlToEmbed(string url)
+    {
+        System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?]+)?)");
+        return regex.Replace(url, "https://www.youtube.com/embed/$1");
+    }
+
+    string GetPrettyDate(DateTime d)
+    {
+        TimeSpan s = DateTime.Now.Subtract(d);
+        int dayDiff = (int)s.TotalDays;
+        int secDiff = (int)s.TotalSeconds;
+
+        if (dayDiff < 0 || dayDiff >= 31)
+        {
+            return null;
+        }
+
+        if (dayDiff == 0)
+        {
+            if (secDiff < 60)
+            {
+                return "just now";
+            }
+            if (secDiff < 120)
+            {
+                return "1 minute ago";
+            }
+            if (secDiff < 3600)
+            {
+                return string.Format("{0} minutes ago",
+                    Math.Floor((double)secDiff / 60));
+            }
+            if (secDiff < 7200)
+            {
+                return "1 hour ago";
+            }
+            if (secDiff < 86400)
+            {
+                return string.Format("{0} hours ago",
+                    Math.Floor((double)secDiff / 3600));
+            }
+        }
+        if (dayDiff == 1)
+        {
+            return "yesterday";
+        }
+        if (dayDiff < 7)
+        {
+            return string.Format("{0} days ago",
+                dayDiff);
+        }
+        if (dayDiff < 31)
+        {
+            return string.Format("{0} weeks ago",
+                Math.Ceiling((double)dayDiff / 7));
+        }
+        return null;
+    }
 }
 
 <h2>Index</h2>
@@ -9,57 +68,29 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Privacy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UploadedSong)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Poster)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Author)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PostedOn)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Privacy)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UploadedSong.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Poster.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostedOn)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@foreach (Post post in Model)
+{
+    <div class="row">
+        <div class="col-lg-6 offset-lg-3">
+            <div class="card">
+                <div class="card-header justify-content-between">
+                    <a asp-controller="/Profile" asp-route-user="@post.Poster.UserName">@post.Poster.UserName</a> posted @GetPrettyDate(post.PostedOn)
+                </div>
+                <div class="card-body">
+                    <p>@post.Description</p>
+                    @if(post.Mp3 != null)
+                    {
+
+                    }
+                    else
+                    {
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <iframe src="@YouTubeUrlToEmbed(post.YoutubeUrl)" class="embed-responsive-item"></iframe>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
 }
-    </tbody>
-</table>

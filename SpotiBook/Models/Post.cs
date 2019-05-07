@@ -14,15 +14,15 @@ namespace SpotiBook.Models
 
         public string Description { get; set; }
 
-        public int? UploadedSongId { get; set; }
-
         public string PosterId { get; set; }
 
         public string AuthorId { get; set; }
 
         public PostPrivacyOptions Privacy { get; set; }
 
-        public virtual Song UploadedSong { get; set; }
+        public byte[] Mp3 { get; set; }
+
+        public string YoutubeUrl { get; set; }
 
         public virtual ApplicationUser Poster { get; set; }
 

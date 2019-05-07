@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpotiBook.Data;
 using SpotiBook.Models;
+using System.Diagnostics;
 
 namespace SpotiBook.Controllers
 {
@@ -21,37 +17,42 @@ namespace SpotiBook.Controllers
 
         public IActionResult Index()
         {
-            if(signInManager.IsSignedIn(User))
+            if (this.signInManager.IsSignedIn(this.User))
             {
-                return LocalRedirect("/Feed");
+                return this.LocalRedirect("/Feed");
             }
 
-            return View();
+            return this.View();
+        }
+
+        public IActionResult Create()
+        {
+            return this.View();
         }
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            this.ViewData["Message"] = "Your application description page.";
 
-            return View();
+            return this.View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            this.ViewData["Message"] = "Your contact page.";
 
-            return View();
+            return this.View();
         }
 
         public IActionResult Privacy()
         {
-            return View();
+            return this.View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return this.View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier });
         }
     }
 }

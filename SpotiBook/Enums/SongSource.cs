@@ -7,7 +7,7 @@ namespace SpotiBook.Enums
 {
     public enum SongSource
     {
-        Upload,
-        YouTube
+        YouTube,
+        Upload
     }
 }

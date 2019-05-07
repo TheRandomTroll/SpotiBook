@@ -19,8 +19,6 @@ namespace SpotiBook.Data
 
         public DbSet<Comment> Comments { get; set; }
 
-        public DbSet<Song> Songs { get; set; }
-
         public DbSet<FollowerRelation> FollowerRelations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
