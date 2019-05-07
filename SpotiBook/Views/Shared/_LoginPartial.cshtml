@@ -8,7 +8,7 @@
     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" id="logoutForm" class="navbar-right">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+                <a class="nav-link" asp-controller="Profile" asp-action="Index" asp-route-user="@UserManager.GetUserName(User)" title="Manage">Hello, @UserManager.GetUserName(User)!</a>
             </li>
             <li class="nav-item">
                 <button type="submit" class="btn btn-link navbar-btn nav-link">Logout</button>

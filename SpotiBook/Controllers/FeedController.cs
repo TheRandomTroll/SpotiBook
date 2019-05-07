@@ -95,6 +95,7 @@ namespace SpotiBook.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreatePostViewModel model)
         {
             if (this.ModelState.IsValid)
@@ -154,6 +155,7 @@ namespace SpotiBook.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Comment(int postId, string comment)
         {
             if (ModelState.IsValid)
@@ -191,6 +193,7 @@ namespace SpotiBook.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Share(int postId, string description)
         {
             if(ModelState.IsValid)

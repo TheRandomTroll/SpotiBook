@@ -1,0 +1,155 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@model SpotiBook.Models.ViewModels.ViewProfileViewModel
+@inject UserManager<SpotiBook.Data.ApplicationUser> UserManager
+
+@{
+    string YouTubeUrlToEmbed(string url)
+    {
+        System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?]+)?)");
+        return regex.Replace(url, "https://www.youtube.com/embed/$1");
+    }
+
+    string GetPrettyDate(DateTime d)
+    {
+        TimeSpan s = DateTime.Now.Subtract(d);
+        int dayDiff = (int)s.TotalDays;
+        int secDiff = (int)s.TotalSeconds;
+
+        if (dayDiff < 0 || dayDiff >= 31)
+        {
+            return string.Format("on {0}", d.Date.ToString());
+        }
+
+        if (dayDiff == 0)
+        {
+            if (secDiff < 60)
+            {
+                return "just now";
+            }
+            if (secDiff < 120)
+            {
+                return "1 minute ago";
+            }
+            if (secDiff < 3600)
+            {
+                return string.Format("{0} minutes ago",
+                    Math.Floor((double)secDiff / 60));
+            }
+            if (secDiff < 7200)
+            {
+                return "1 hour ago";
+            }
+            if (secDiff < 86400)
+            {
+                return string.Format("{0} hours ago",
+                    Math.Floor((double)secDiff / 3600));
+            }
+        }
+        if (dayDiff == 1)
+        {
+            return "yesterday";
+        }
+        if (dayDiff < 7)
+        {
+            return string.Format("{0} days ago",
+                dayDiff);
+        }
+        if (dayDiff < 31)
+        {
+            return string.Format("{0} weeks ago",
+                Math.Ceiling((double)dayDiff / 7));
+        }
+        return null;
+    }
+}
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <h5>
+                    @@@Model.Username
+                </h5>
+                <h5><span class="text-primary">@Model.FollowersCount</span> Follower@(Model.FollowersCount == 1 ? "" : "s")</h5>
+                <h5><span class="text-primary">@Model.FollowingCount</span> Following</h5>
+            </div>
+            @if (UserManager.GetUserName(User) == Model.Username)
+            {
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-primary">Edit your account data</a>
+            }
+        </div>
+    </div>
+    <div class="col-lg-6">
+        @foreach (Post post in Model.Posts)
+        {
+            <div class="card">
+                <div class="card-header justify-content-between">
+                    <a asp-controller="/Profile" asp-route-user="@post.Author.UserName">@post.Author.UserName</a> @(post.OriginalPost == null ? "posted" : "shared") @GetPrettyDate(post.PostedOn)
+                </div>
+                <div class="card-body">
+                    <p>@post.Description</p>
+                    @if (post.OriginalPost == null)
+                    {
+                        @if (post.Mp3 != null)
+                        {
+
+                        }
+                        else
+                        {
+                            <div class="embed-responsive embed-responsive-16by9">
+                                <iframe src="@YouTubeUrlToEmbed(post.YoutubeUrl)" class="embed-responsive-item"></iframe>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        var originalPost = post.OriginalPost;
+                        while (originalPost.OriginalPost != null)
+                        {
+                            originalPost = originalPost.OriginalPost;
+                        }
+
+                        <div class="card">
+                            <div class="card-header justify-content-between">
+                                <a asp-controller="/Profile" asp-route-user="@originalPost.Author.UserName">@originalPost.Author.UserName</a> posted @GetPrettyDate(originalPost.PostedOn)
+                            </div>
+                            <div class="card-body">
+                                <p>@originalPost.Description</p>
+                                @if (originalPost.Mp3 != null)
+                                {
+
+                                }
+                                else
+                                {
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe src="@YouTubeUrlToEmbed(originalPost.YoutubeUrl)" class="embed-responsive-item"></iframe>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-6"><a asp-action="Comment" asp-route-id="@post.Id">Comment</a></div>
+                        <div class="col-6"><a asp-action="Share" asp-route-id="@post.Id">Share</a></div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @foreach (Comment comment in post.Comments)
+                    {
+                        <div>
+                            <div>
+                                <small><a asp-controller="/Profile" asp-route-user="@comment.Author.UserName">@comment.Author.UserName</a> commented @GetPrettyDate(comment.PostedOn)</small>
+                            </div>
+                            @comment.Content
+                            <br />
+                        </div>
+                    }
+                </div>
+            </div>
+            <br />
+        }
+    </div>
+</div>
