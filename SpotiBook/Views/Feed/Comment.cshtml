@@ -1,0 +1,21 @@
+﻿@model SpotiBook.Models.Post
+
+@{
+    ViewData["Title"] = "Comment";
+}
+
+<div class="row">
+    <div class="col-lg-6 offset-lg-3">
+        <h2>Comment</h2>
+        <form asp-action="Comment" method="post">
+            <input type="hidden" name="postId" value="@Model.Id" />
+            <div class="form-group">
+                <label for="comment" class="control-label">Leave a comment</label>
+                <input name="comment" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

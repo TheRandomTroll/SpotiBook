@@ -121,9 +121,21 @@
                 </div>
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-6">Comment</div>
+                        <div class="col-6"><a asp-action="Comment" asp-route-id="@post.Id">Comment</a></div>
                         <div class="col-6"><a asp-action="Share" asp-route-id="@post.Id">Share</a></div>
                     </div>
+                </div>
+                <div class="card-body">
+                    @foreach (Comment comment in post.Comments)
+                    {
+                    <div>
+                        <div>
+                            <small><a asp-controller="/Profile" asp-route-user="@comment.Author.UserName">@comment.Author.UserName</a> commented @GetPrettyDate(comment.PostedOn)</small>
+                        </div>
+                        @comment.Content
+                        <br />
+                    </div>
+                    }
                 </div>
             </div>
         </div>

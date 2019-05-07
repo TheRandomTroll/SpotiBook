@@ -30,17 +30,17 @@ namespace SpotiBook.Controllers
         public async Task<IActionResult> Index()
         {
             ApplicationUser user = await this.GetCurrentUserAsync();
-            this.context.Entry(user)
+            await this.context.Entry(user)
                 .Collection(x => x.Posts)
-                .Load();
+                .LoadAsync();
 
-            this.context.Entry(user)
+            await this.context.Entry(user)
                 .Collection(x => x.Following)
-                .Load();
+                .LoadAsync();
 
-            this.context.Entry(user)
+            await this.context.Entry(user)
                 .Collection(x => x.Followers)
-                .Load();
+                .LoadAsync();
 
 
             List<Post> posts = user.Posts
@@ -48,28 +48,39 @@ namespace SpotiBook.Controllers
 
             foreach (FollowerRelation relation in user.Following)
             {
-                this.context.Entry(relation)
+                await this.context.Entry(relation)
                     .Reference(x => x.Follower)
-                    .Load();
-                this.context.Entry(relation.Follower)
+                    .LoadAsync();
+                await this.context.Entry(relation.Follower)
                     .Collection(x => x.Posts)
-                    .Load();
+                    .LoadAsync();
 
                 posts.AddRange(relation.Follower.Posts);
             }
 
             foreach(Post post in posts)
             {
-                this.context.Entry(post)
+                await this.context.Entry(post)
                     .Reference(x => x.OriginalPost)
-                    .Load();
+                    .LoadAsync();
+
+                await this.context.Entry(post)
+                    .Collection(x => x.Comments)
+                    .LoadAsync();
+
+                foreach(Comment comment in post.Comments)
+                {
+                    await this.context.Entry(comment)
+                        .Reference(x => x.Author)
+                        .LoadAsync();
+                }
 
                 Post originalPost = post.OriginalPost;
                 while(originalPost != null)
                 {
-                    this.context.Entry(originalPost)
+                    await this.context.Entry(originalPost)
                         .Reference(x => x.OriginalPost)
-                        .Load();
+                        .LoadAsync();
 
                     originalPost = originalPost.OriginalPost;
                 }
@@ -124,6 +135,42 @@ namespace SpotiBook.Controllers
             }
 
             return this.View();
+        }
+        public IActionResult Comment(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            Post post = this.context.Posts.FirstOrDefault(x => x.Id == id);
+
+            if (post == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            return this.View(post);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Comment(int postId, string comment)
+        {
+            if (ModelState.IsValid)
+            {
+                this.context.Comments.Add(new Comment
+                {
+                    Author = await GetCurrentUserAsync(),
+                    Content = comment,
+                    Post = this.context.Posts.First(x => x.Id == postId),
+                    PostedOn = DateTime.Now
+                });
+
+                await this.context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+
+            return View();
         }
 
         public IActionResult Share(int? id)
