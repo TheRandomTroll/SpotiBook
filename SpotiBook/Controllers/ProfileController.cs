@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpotiBook.Data;
 using SpotiBook.Enums;
 using SpotiBook.Models;
 using SpotiBook.Models.ViewModels;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SpotiBook.Controllers
 {
+    [Authorize]
     public class ProfileController : Controller
     {
         private readonly ApplicationDbContext context;
@@ -26,16 +26,16 @@ namespace SpotiBook.Controllers
 
         public async Task<IActionResult> Index(string user)
         {
-            if(user == null)
+            if (user == null)
             {
-                return LocalRedirect("/");
+                return this.LocalRedirect("/");
             }
 
             ApplicationUser userData = this.context.Users.FirstOrDefault(x => x.UserName == user);
 
-            if(userData == null)
+            if (userData == null)
             {
-                return LocalRedirect("/");
+                return this.LocalRedirect("/");
             }
 
             await this.context.Entry(userData)
@@ -57,12 +57,19 @@ namespace SpotiBook.Controllers
                 FollowingCount = userData.Following.Count
             };
 
-            if(this.GetCurrentUserAsync().Result.UserName == userData.UserName)
+            if (this.GetCurrentUserAsync().Result.UserName == userData.UserName)
             {
                 model.Posts = userData.Posts.ToList();
             }
             else
             {
+                foreach (FollowerRelation relation in userData.Followers)
+                {
+                    await this.context.Entry(relation)
+                        .Reference(x => x.Follower)
+                        .LoadAsync();
+                }
+                model.IsFollowing = userData.Followers.Any(x => x.Following.UserName == this.GetCurrentUserAsync().Result.UserName);
                 model.Posts = userData.Posts.ToList().Where(x => x.Privacy == PostPrivacyOptions.Public).ToList();
             }
 
@@ -90,14 +97,59 @@ namespace SpotiBook.Controllers
                         .Reference(x => x.OriginalPost)
                         .LoadAsync();
 
+                    await this.context.Entry(originalPost)
+                        .Reference(x => x.Author)
+                        .LoadAsync();
+
                     originalPost = originalPost.OriginalPost;
                 }
             }
 
             model.Posts = model.Posts.OrderByDescending(x => x.PostedOn).ToList();
 
-            return View(model);
+            return this.View(model);
 
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Follow(string username)
+        {
+            if (username != null)
+            {
+                this.context.FollowerRelations.Add(new FollowerRelation
+                {
+                    Following = await this.GetCurrentUserAsync(),
+                    Follower = await this.userManager.FindByNameAsync(username)
+                });
+
+                await this.context.SaveChangesAsync();
+                return this.RedirectToAction(nameof(Index), new { user = username });
+            }
+
+            return this.LocalRedirect("/Feed");
+        }
+
+        public async Task<IActionResult> Unfollow(string username)
+        {
+            if (username != null)
+            {
+                FollowerRelation relation = this.context.FollowerRelations
+                    .FirstOrDefault(
+                    x => x.Following.UserName == this.GetCurrentUserAsync().Result.UserName && x.Follower.UserName == username);
+
+                if (relation == null)
+                {
+                    return this.LocalRedirect("/");
+                }
+
+                this.context.FollowerRelations.Remove(relation);
+
+                await this.context.SaveChangesAsync();
+                return this.RedirectToAction(nameof(Index), new { user = username });
+            }
+
+            return this.LocalRedirect("/Feed");
         }
 
         private Task<ApplicationUser> GetCurrentUserAsync()

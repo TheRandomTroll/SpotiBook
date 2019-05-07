@@ -8,6 +8,7 @@ namespace SpotiBook.Models.ViewModels
     public class ViewProfileViewModel
     {
         public string Username { get; set; }
+        public bool IsFollowing { get; set; }
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }
         public List<Post> Posts { get; set; }

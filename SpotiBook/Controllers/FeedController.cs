@@ -82,6 +82,10 @@ namespace SpotiBook.Controllers
                         .Reference(x => x.OriginalPost)
                         .LoadAsync();
 
+                    await this.context.Entry(originalPost)
+                        .Reference(x => x.Author)
+                        .LoadAsync();
+
                     originalPost = originalPost.OriginalPost;
                 }
             }

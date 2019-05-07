@@ -63,11 +63,15 @@
     }
 }
 
-<h2>Index</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div class="row">
+    <div class="col-lg-6 offset-lg-3">
+        <h2>Your feed</h2>
+        <p>
+            <a asp-action="Create" class="btn btn-primary">Got a new song?</a>
+        </p>
+    </div>
+</div>
 @foreach (Post post in Model)
 {
     <div class="row">
@@ -128,13 +132,13 @@
                 <div class="card-body">
                     @foreach (Comment comment in post.Comments)
                     {
-                    <div>
                         <div>
-                            <small><a asp-controller="/Profile" asp-route-user="@comment.Author.UserName">@comment.Author.UserName</a> commented @GetPrettyDate(comment.PostedOn)</small>
+                            <div>
+                                <small><a asp-controller="/Profile" asp-route-user="@comment.Author.UserName">@comment.Author.UserName</a> commented @GetPrettyDate(comment.PostedOn)</small>
+                            </div>
+                            @comment.Content
+                            <br />
                         </div>
-                        @comment.Content
-                        <br />
-                    </div>
                     }
                 </div>
             </div>

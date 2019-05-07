@@ -228,9 +228,9 @@ namespace SpotiBook.Data.Migrations
 
                     b.Property<byte[]>("Mp3");
 
-                    b.Property<DateTime>("PostedOn");
+                    b.Property<int?>("OriginalPostId");
 
-                    b.Property<string>("PosterId");
+                    b.Property<DateTime>("PostedOn");
 
                     b.Property<int>("Privacy");
 
@@ -240,7 +240,7 @@ namespace SpotiBook.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("PosterId");
+                    b.HasIndex("OriginalPostId");
 
                     b.ToTable("Posts");
                 });
@@ -321,9 +321,9 @@ namespace SpotiBook.Data.Migrations
                         .WithMany("Posts")
                         .HasForeignKey("AuthorId");
 
-                    b.HasOne("SpotiBook.Data.ApplicationUser", "Poster")
+                    b.HasOne("SpotiBook.Models.Post", "OriginalPost")
                         .WithMany()
-                        .HasForeignKey("PosterId");
+                        .HasForeignKey("OriginalPostId");
                 });
 #pragma warning restore 612, 618
         }

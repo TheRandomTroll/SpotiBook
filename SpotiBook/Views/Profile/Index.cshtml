@@ -4,6 +4,8 @@
 @inject UserManager<SpotiBook.Data.ApplicationUser> UserManager
 
 @{
+    ViewData["Title"] = Model.Username + "\'s feed";
+
     string YouTubeUrlToEmbed(string url)
     {
         System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(@"(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?]+)?)");
@@ -77,6 +79,23 @@
             @if (UserManager.GetUserName(User) == Model.Username)
             {
                 <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-primary">Edit your account data</a>
+            }
+            else
+            {
+                if (Model.IsFollowing)
+                {
+                    <form asp-action="Unfollow" method="post">
+                        <input type="hidden" name="username" value="@Model.Username" />
+                        <input type="submit" value="Unfollow" class="btn btn-danger w-100" />
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="Follow" method="post">
+                        <input type="hidden" name="username" value="@Model.Username" />
+                        <input type="submit" value="Follow" class="btn btn-success w-100" />
+                    </form>
+                }
             }
         </div>
     </div>
