@@ -14,7 +14,7 @@ namespace SpotiBook.Models
 
         public string Description { get; set; }
 
-        public string PosterId { get; set; }
+        public int? OriginalPostId { get; set; }
 
         public string AuthorId { get; set; }
 
@@ -24,10 +24,10 @@ namespace SpotiBook.Models
 
         public string YoutubeUrl { get; set; }
 
-        public virtual ApplicationUser Poster { get; set; }
-
         [ForeignKey("AuthorId")]
         public virtual ApplicationUser Author { get; set; }
+
+        public virtual Post OriginalPost { get; set; }
 
         public DateTime PostedOn { get; set; }
 

@@ -38,12 +38,41 @@ namespace SpotiBook.Controllers
                 .Collection(x => x.Following)
                 .Load();
 
+            this.context.Entry(user)
+                .Collection(x => x.Followers)
+                .Load();
+
+
             List<Post> posts = user.Posts
                 .ToList();
 
             foreach (FollowerRelation relation in user.Following)
             {
-                posts.AddRange(relation.Following.Posts.ToList().Where(x => x.Privacy == PostPrivacyOptions.Public));
+                this.context.Entry(relation)
+                    .Reference(x => x.Follower)
+                    .Load();
+                this.context.Entry(relation.Follower)
+                    .Collection(x => x.Posts)
+                    .Load();
+
+                posts.AddRange(relation.Follower.Posts);
+            }
+
+            foreach(Post post in posts)
+            {
+                this.context.Entry(post)
+                    .Reference(x => x.OriginalPost)
+                    .Load();
+
+                Post originalPost = post.OriginalPost;
+                while(originalPost != null)
+                {
+                    this.context.Entry(originalPost)
+                        .Reference(x => x.OriginalPost)
+                        .Load();
+
+                    originalPost = originalPost.OriginalPost;
+                }
             }
 
             return this.View(posts.OrderByDescending(x => x.PostedOn));
@@ -63,7 +92,6 @@ namespace SpotiBook.Controllers
                 {
                     Description = model.Description,
                     Author = await this.GetCurrentUserAsync(),
-                    Poster = await this.GetCurrentUserAsync(),
                     Privacy = model.Privacy,
                     PostedOn = DateTime.Now
                 };
@@ -98,6 +126,42 @@ namespace SpotiBook.Controllers
             return this.View();
         }
 
+        public IActionResult Share(int? id)
+        {
+            if(id == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            Post post = this.context.Posts.FirstOrDefault(x => x.Id == id);
+
+            if(post == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            return this.View(post);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Share(int postId, string description)
+        {
+            if(ModelState.IsValid)
+            {
+                this.context.Posts.Add(new Post
+                {
+                    Author = await this.GetCurrentUserAsync(),
+                    PostedOn = DateTime.Now,
+                    Description = description,
+                    OriginalPost = this.context.Posts.First(x => x.Id == postId)
+                });
+
+                await this.context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+
+            return View();
+        }
         private Task<ApplicationUser> GetCurrentUserAsync()
         {
             return this.userManager.GetUserAsync(this.HttpContext.User);

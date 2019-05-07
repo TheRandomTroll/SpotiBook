@@ -17,7 +17,7 @@
 
         if (dayDiff < 0 || dayDiff >= 31)
         {
-            return null;
+            return string.Format("on {0}", d.Date.ToString());
         }
 
         if (dayDiff == 0)
@@ -74,20 +74,56 @@
         <div class="col-lg-6 offset-lg-3">
             <div class="card">
                 <div class="card-header justify-content-between">
-                    <a asp-controller="/Profile" asp-route-user="@post.Poster.UserName">@post.Poster.UserName</a> posted @GetPrettyDate(post.PostedOn)
+                    <a asp-controller="/Profile" asp-route-user="@post.Author.UserName">@post.Author.UserName</a> @(post.OriginalPost == null ? "posted" : "shared") @GetPrettyDate(post.PostedOn)
                 </div>
                 <div class="card-body">
                     <p>@post.Description</p>
-                    @if(post.Mp3 != null)
+                    @if (post.OriginalPost == null)
                     {
+                        @if (post.Mp3 != null)
+                        {
 
+                        }
+                        else
+                        {
+                            <div class="embed-responsive embed-responsive-16by9">
+                                <iframe src="@YouTubeUrlToEmbed(post.YoutubeUrl)" class="embed-responsive-item"></iframe>
+                            </div>
+                        }
                     }
                     else
                     {
-                        <div class="embed-responsive embed-responsive-16by9">
-                            <iframe src="@YouTubeUrlToEmbed(post.YoutubeUrl)" class="embed-responsive-item"></iframe>
+                        var originalPost = post.OriginalPost;
+                        while (originalPost.OriginalPost != null)
+                        {
+                            originalPost = originalPost.OriginalPost;
+                        }
+
+                        <div class="card">
+                            <div class="card-header justify-content-between">
+                                <a asp-controller="/Profile" asp-route-user="@originalPost.Author.UserName">@originalPost.Author.UserName</a> posted @GetPrettyDate(originalPost.PostedOn)
+                            </div>
+                            <div class="card-body">
+                                <p>@originalPost.Description</p>
+                                @if (originalPost.Mp3 != null)
+                                {
+
+                                }
+                                else
+                                {
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe src="@YouTubeUrlToEmbed(originalPost.YoutubeUrl)" class="embed-responsive-item"></iframe>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     }
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-6">Comment</div>
+                        <div class="col-6"><a asp-action="Share" asp-route-id="@post.Id">Share</a></div>
+                    </div>
                 </div>
             </div>
         </div>
