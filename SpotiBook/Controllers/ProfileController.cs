@@ -68,9 +68,19 @@ namespace SpotiBook.Controllers
                     await this.context.Entry(relation)
                         .Reference(x => x.Follower)
                         .LoadAsync();
+                    await this.context.Entry(relation)
+                        .Reference(x => x.Following)
+                        .LoadAsync();
                 }
                 model.IsFollowing = userData.Followers.Any(x => x.Following.UserName == this.GetCurrentUserAsync().Result.UserName);
-                model.Posts = userData.Posts.ToList().Where(x => x.Privacy == PostPrivacyOptions.Public).ToList();
+                if(model.IsFollowing)
+                {
+                    model.Posts = userData.Posts.ToList();
+                }
+                else
+                {
+                    model.Posts = userData.Posts.ToList().Where(x => x.Privacy == PostPrivacyOptions.Public).ToList();
+                }
             }
 
             foreach (Post post in model.Posts)

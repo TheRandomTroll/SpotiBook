@@ -1,0 +1,15 @@
+﻿@model System.Collections.Generic.HashSet<string>
+@{
+    ViewData["Title"] = "Recommendations";
+}
+
+<h2>Recommendations</h2>
+<p>Based on songs you and other users shared, here are some people which you can recommend:</p>
+@Html.Raw("<ul>")
+@foreach (string user in Model)
+{
+    <li><a asp-controller="Profile" asp-action="Index" asp-route-user="@user">@user</a></li>
+}
+@Html.Raw("</ul>")
+
+

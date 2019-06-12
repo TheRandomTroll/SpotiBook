@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Identity\Services\" />
+    <Folder Include="wwwroot\music\" />
   </ItemGroup>
 
 </Project>

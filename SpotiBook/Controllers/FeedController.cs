@@ -216,6 +216,52 @@ namespace SpotiBook.Controllers
 
             return View();
         }
+
+        public async Task<IActionResult> Recommendations()
+        {
+            Dictionary<string, HashSet<ApplicationUser>> graph = new Dictionary<string, HashSet<ApplicationUser>>();
+            ApplicationUser currentUser = await this.GetCurrentUserAsync();
+            await this.context.Entry(currentUser)
+                .Collection(x => x.Posts)
+                .LoadAsync();
+            foreach(Post post in currentUser.Posts.Where(x => x.OriginalPostId == null))
+            {
+                if(!graph.ContainsKey(post.YoutubeUrl) && post.YoutubeUrl != null)
+                {
+                    graph[post.YoutubeUrl] = new HashSet<ApplicationUser>();
+                }
+
+                graph[post.YoutubeUrl].Add(currentUser);
+            }
+
+            foreach(ApplicationUser user in this.context.Users.Where(x => x != currentUser))
+            {
+                await this.context.Entry(user)
+                .Collection(x => x.Posts)
+                .LoadAsync();
+
+                foreach(Post post in user.Posts.Where(x => x.OriginalPostId == null))
+                {
+                    if(graph.ContainsKey(post.YoutubeUrl))
+                    {
+                        graph[post.YoutubeUrl].Add(user);
+                    }
+                }
+            }
+
+            HashSet<string> recommendedUsers = new HashSet<string>();
+
+            foreach(HashSet<ApplicationUser> users in graph.Values.Where(x => x.Count > 1))
+            {
+                foreach(ApplicationUser user in users.Where(x => x != currentUser))
+                {
+                    recommendedUsers.Add(user.UserName);
+                }
+            }
+
+            return this.View(recommendedUsers);
+        }
+
         private Task<ApplicationUser> GetCurrentUserAsync()
         {
             return this.userManager.GetUserAsync(this.HttpContext.User);

@@ -151,8 +151,8 @@
                 </div>
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-6"><a asp-action="Comment" asp-route-id="@post.Id">Comment</a></div>
-                        <div class="col-6"><a asp-action="Share" asp-route-id="@post.Id">Share</a></div>
+                        <div class="col-6"><a asp-controller="Feed" asp-action="Comment" asp-route-id="@post.Id">Comment</a></div>
+                        <div class="col-6"><a asp-controller="Feed" asp-action="Share" asp-route-id="@post.Id">Share</a></div>
                     </div>
                 </div>
                 <div class="card-body">
